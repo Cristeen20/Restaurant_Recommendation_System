@@ -31,7 +31,9 @@ async def scrape_website(url):
 async def scrape_review(restaurant_urls):
     rest_name = []
     review = []
+    review_count = []
     address = []
+    cusines = []
 
     for restaurant in restaurant_urls:
         # Launch a headless Chromium browser
@@ -61,16 +63,31 @@ async def scrape_review(restaurant_urls):
         await page.waitForSelector('a.AYHFM')
         divElements = await page.querySelectorAll('a.AYHFM')
         address_text = await page.evaluate('(element) => element.textContent', divElements[1])
+
+        rest_cusine = []
+        await page.waitForSelector('a.dlMOJ')
+        divElements = await page.querySelectorAll('a.dlMOJ')
+        for cus in divElements[1:]:
+            cusine_type = await page.evaluate('(element) => element.textContent', cus)
+            rest_cusine.append(cusine_type)
+
+        await page.waitForSelector('span.AfQtZ')
+        divElement = await page.querySelector('span.AfQtZ')
+        review_num = await page.evaluate('(element) => element.textContent', divElement)
+
        
         
         rest_name.append(r_name)
         review.append(aria_label)
         address.append(address_text)
-
+        cusines.append(rest_cusine)
+        review_count.append(review_num)
+    
         # Closing the browser
         await browser.close()
+        break
         
-    print(rest_name,review,address)
+    print(rest_name,review,address,cusines,review_count)
 
    
 
