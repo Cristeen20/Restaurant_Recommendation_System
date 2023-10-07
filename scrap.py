@@ -69,7 +69,7 @@ async def scrape_review(restaurant_urls):
 
         # Closing the browser
         await browser.close()
-        break
+        
     print(rest_name,review,address)
 
    
