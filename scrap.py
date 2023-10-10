@@ -1,7 +1,10 @@
 
-
+import json
 import asyncio
 from pyppeteer import launch
+
+from restaurant_review import scrape_review
+from csv_write import write_csv
 
 async def scrape_website(url):
 
@@ -19,7 +22,7 @@ async def scrape_website(url):
     
     restaurant_urls = []
     for url in urls:
-        if "Restaurant_Review" in url:
+        if "Restaurant_Review" in url and "#REVIEWS" not in url:
             restaurant_urls.append(url)
 
     # Closing the browser
@@ -28,12 +31,8 @@ async def scrape_website(url):
     restaurant_urls = list(set(restaurant_urls))
     return restaurant_urls
 
-async def scrape_review(restaurant_urls):
-    rest_name = []
-    review = []
-    review_count = []
-    address = []
-    cusines = []
+async def scrape_restaurant(restaurant_urls):
+    rest_json = []
 
     for restaurant in restaurant_urls:
         # Launch a headless Chromium browser
@@ -75,23 +74,31 @@ async def scrape_review(restaurant_urls):
         divElement = await page.querySelector('span.AfQtZ')
         review_num = await page.evaluate('(element) => element.textContent', divElement)
 
-       
-        
-        rest_name.append(r_name)
-        review.append(aria_label)
-        address.append(address_text)
-        cusines.append(rest_cusine)
-        review_count.append(review_num)
-    
-        # Closing the browser
         await browser.close()
-        break
+
+        review_url = restaurant+"#REVIEWS"
+        review_texts = await asyncio.create_task(scrape_review(review_url))
+        restaurant_scrap_row = {"Restaurant Name":r_name,
+                                "Rating":aria_label,
+                                "Address":address_text,
+                                "Cusines":rest_cusine,
+                                "Review Count":review_num,
+                                "Review List":review_texts
+                                }
         
-    print(rest_name,review,address,cusines,review_count)
+        rest_json.append(restaurant_scrap_row)
+
+        
+        
+        
+    return rest_json
 
    
 
 # Run the scraping function
-mail_url = "https://www.tripadvisor.ca/Restaurants-g155019-Toronto_Ontario.html"
-restaurant_urls = asyncio.get_event_loop().run_until_complete(scrape_website(mail_url))
-asyncio.get_event_loop().run_until_complete(scrape_review(restaurant_urls))
+#https://www.tripadvisor.ca/Restaurants-g181740-Richmond_Hill_Ontario.html
+#https://www.tripadvisor.ca/Restaurants-g155019-Toronto_Ontario.html
+main_url = "https://www.tripadvisor.ca/Restaurants-g181720-Markham_Ontario.html"
+restaurant_urls = asyncio.get_event_loop().run_until_complete(scrape_website(main_url))
+rest_json = asyncio.get_event_loop().run_until_complete(scrape_restaurant(restaurant_urls))
+write_csv(rest_json)
