@@ -6,6 +6,7 @@ from pyppeteer import launch
 from restaurant_review import scrape_review
 from csv_write import write_csv
 
+
 async def scrape_website(url):
 
     # Launch a headless Chromium browser
@@ -29,6 +30,7 @@ async def scrape_website(url):
     await browser.close()
 
     restaurant_urls = list(set(restaurant_urls))
+    print(restaurant_urls)
     return restaurant_urls
 
 async def scrape_restaurant(restaurant_urls):
@@ -101,4 +103,4 @@ async def scrape_restaurant(restaurant_urls):
 main_url = "https://www.tripadvisor.ca/Restaurants-g181720-Markham_Ontario.html"
 restaurant_urls = asyncio.get_event_loop().run_until_complete(scrape_website(main_url))
 rest_json = asyncio.get_event_loop().run_until_complete(scrape_restaurant(restaurant_urls))
-write_csv(rest_json)
+write_csv(rest_json,"Restaurant_data.csv")

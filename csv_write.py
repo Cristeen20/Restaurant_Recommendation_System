@@ -1,8 +1,7 @@
 
 import csv
 
-def write_csv(data):
-    csv_file = 'Restaurant_data.csv'
+def write_csv(data,csv_file):
 
     # Open the CSV file in write mode
     with open(csv_file, 'a', newline='') as csv_file:
