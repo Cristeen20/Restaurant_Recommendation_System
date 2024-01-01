@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Recommendations</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Find Your Favorite Restaurants</h1>
+
+    <form method="POST" id="search-form">
+        <label for="user_input">Enter Restaurant name:</label>
+        <input type="text" id="user_input" name="user_input" required>
+        <button type="submit">Get Recommendations</button>
+    </form>
+
+    <div id="recommendations"></div>
+
+    <h1>Model - KNN</h1>
+
+    <form method="POST" id="knn_recommend">
+        <label for="user_input_knn">Enter the Username to recommend</label>
+        <input type="text" id="user_input_knn" name="user_input_knn" required>
+        <button type="submit" id = "knnsubmit">Get Recommendations</button>
+    </form>
+    <div id="recommendations_knn"></div>
+    
+    <h1>Model - SVD</h1>
+
+    <form method="POST" id="svd_recommend">
+        <label for="user_input_svd">Enter the Username to recommend</label>
+        <input type="text" id="user_input_svd" name="user_input_svd" required>
+        <button type="submit" id = "svdsubmit">Get Recommendations</button>
+    </form>
+    <div id="recommendations_svd"></div>
+
+    <script>
+
+        function callFlaskAPI(userInput,model) {
+            
+            $.ajax({
+                url: "http://127.0.0.1:5000/"+model+"/"+userInput,
+                type: "POST",
+                success: function(data) {
+                    let recommendationsHtml = "<h2>Recommended Restaurants:</h2><ul>";
+                    data.forEach(function(restaurant) {
+                        recommendationsHtml += "<li>" + restaurant.name  + "</li>";
+                    });
+                    recommendationsHtml += "</ul>";
+                    $("#recommendations").html(recommendationsHtml);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Failed to get recommendations: ", error);
+                }
+            });
+        }
+
+
+        $("#search-form").submit(function(event) {
+            event.preventDefault();
+            let userInput = $("#user_input").val();
+            console.log(userInput)
+
+
+            $.ajax({
+                url: "http://127.0.0.1:5000/recommend/"+userInput,
+                type: "POST",
+                success: function(data) {
+                    let recommendationsHtml = "<h2>Recommended Restaurants:</h2><ul>";
+                    data.forEach(function(restaurant) {
+                        recommendationsHtml += "<li>" + restaurant.name  + "</li>";
+                    });
+                    recommendationsHtml += "</ul>";
+                    $("#recommendations").html(recommendationsHtml);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Failed to get recommendations: ", error);
+                }
+            });
+        });
+
+        $("#knn_recommend").submit(function(event) {
+            event.preventDefault();
+            let userInput = $("#user_input_knn").val();
+            console.log(userInput)
+       
+            $.ajax({
+                url: "http://127.0.0.1:5000/knn/"+userInput,
+                type: "POST",
+                success: function(data) {
+                    console.log("data")
+                    let recommendationsHtml = "<h2>Recommended Restaurants:</h2><ul>";
+                    data.forEach(function(restaurant) {
+                        recommendationsHtml += "<li>" + restaurant.name  + "</li>";
+                    });
+                    recommendationsHtml += "</ul>";
+                    $("#recommendations_knn").html(recommendationsHtml);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Failed to get recommendations: ", error);
+                }
+            });
+        });
+
+        
+        $("#svd_recommend").submit(function(event) {
+            event.preventDefault();
+            let userInput = $("#user_input_svd").val();
+            console.log(userInput)
+       
+            $.ajax({
+                url: "http://127.0.0.1:5000/svd/"+userInput,
+                type: "POST",
+                success: function(data) {
+                    console.log("data")
+                    let recommendationsHtml = "<h2>Recommended Restaurants:</h2><ul>";
+                    data.forEach(function(restaurant) {
+                        recommendationsHtml += "<li>" + restaurant.name  + "</li>";
+                    });
+                    recommendationsHtml += "</ul>";
+                    $("#recommendations_svd").html(recommendationsHtml);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Failed to get recommendations: ", error);
+                }
+            });
+        });
+
+
+        
+    </script>
+
+
+</body>
+</html>
